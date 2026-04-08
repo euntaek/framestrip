@@ -1,0 +1,31 @@
+# Xcode
+DerivedData/
+*.xcodeproj/xcuserdata/
+*.xcodeproj/project.xcworkspace/xcuserdata/
+*.xcworkspace/xcuserdata/
+xcuserdata/
+
+# Build
+build/
+
+# macOS
+.DS_Store
+
+#VsCode
+.vscode/
+
+# Swift Package Manager
+.build/
+*.resolved
+
+# ai
+.claude
+AGENTS.override.md
+.superpowers/
+.gstack/
+
+# Signing
+Config/Signing.local.xcconfig
+
+# Dev docs (specs, plans)
+.docs/
