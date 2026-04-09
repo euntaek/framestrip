@@ -57,7 +57,7 @@ Download the latest `.dmg` from [GitHub Releases](https://github.com/euntaek/fra
 
 Open the `.dmg`, drag FrameStrip to Applications, and launch. On first launch, macOS will ask for screen recording permission.
 
-> **Note:** FrameStrip is not code-signed yet. Right-click the app and select "Open" to bypass the Gatekeeper warning.
+> **Note:** FrameStrip is not code-signed yet. On first launch, macOS will block the app. Go to **System Settings → Privacy & Security**, then click **"Open Anyway"**.
 
 ### Build from Source
 
