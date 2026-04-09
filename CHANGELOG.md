@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.0.1] — 2026-04-09
+
+### Fixed
+- Capture resolution now consistent across displays — same visual region produces identical pixel dimensions regardless of monitor scale factor
+- First few capture frames no longer hit slow fallback path when starting a recording
+
 ## [1.0.0] — 2026-04-07
 
 First public release.
