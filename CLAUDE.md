@@ -94,8 +94,15 @@ Xcode project has `MARKETING_VERSION` (user-facing, e.g. `1.1.0`) and `CURRENT_P
 
 1. Update `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in Xcode project
 2. Update `CHANGELOG.md` with new version entry
-3. Build Release: `xcodebuild -project FrameStrip.xcodeproj -scheme FrameStrip -configuration Release build`
-4. Create `.dmg`: stage app + Applications symlink, then `hdiutil create`
+3. Build Release (clean build with local DerivedData to avoid stale cache):
+   ```bash
+   xcodebuild -project FrameStrip.xcodeproj -scheme FrameStrip -configuration Release -derivedDataPath DerivedData clean build
+   ```
+4. Verify version in built app:
+   ```bash
+   defaults read DerivedData/Build/Products/Release/FrameStrip.app/Contents/Info.plist CFBundleShortVersionString
+   ```
+5. Create `.dmg`: stage app + Applications symlink, then `hdiutil create`
    ```bash
    DMG_STAGING=$(mktemp -d)
    cp -R "DerivedData/Build/Products/Release/FrameStrip.app" "$DMG_STAGING/"
@@ -104,9 +111,9 @@ Xcode project has `MARKETING_VERSION` (user-facing, e.g. `1.1.0`) and `CURRENT_P
    rm -rf "$DMG_STAGING"
    ```
    Asset name is always `FrameStrip.dmg` (no version suffix). Landing page download URL depends on this.
-5. Commit version bump + changelog
-6. Tag and push: `git tag v1.1.0 && git push origin v1.1.0`
-7. Create GitHub Release: `gh release create v1.1.0 --title "v1.1.0" --notes-file <(sed -n '/## \[1.1.0\]/,/## \[/p' CHANGELOG.md | head -n -1) FrameStrip.dmg`
+6. Commit version bump + changelog
+7. Tag and push: `git tag v1.1.0 && git push origin v1.1.0`
+8. Create GitHub Release: `gh release create v1.1.0 --title "v1.1.0" --notes-file <(sed -n '/## \[1.1.0\]/,/## \[/p' CHANGELOG.md | sed '$d') FrameStrip.dmg`
 
 ### Changelog Format
 
