@@ -218,9 +218,8 @@ class RegionSelectionView: NSView {
     }
 
     private func drawSizeBadge(for rect: NSRect) {
-        let scaleFactor = window?.screen?.backingScaleFactor ?? 2.0
-        let width = Int(rect.width * scaleFactor)
-        let height = Int(rect.height * scaleFactor)
+        let width = Int(rect.width)
+        let height = Int(rect.height)
         let text = "\(width) \u{00D7} \(height) px"
         let textSize = (text as NSString).size(withAttributes: Self.badgeAttributes)
         let badgePadding: CGFloat = 6

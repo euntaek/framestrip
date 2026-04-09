@@ -165,7 +165,7 @@ class RecordingSession {
 
     // MARK: - Start / Stop
 
-    func start(region: CGRect, screen: NSScreen) throws {
+    func start(region: CGRect, screen: NSScreen) async throws {
         sessionDir = try imageSaver.createSessionFolder()
 
         appState.resetDisplayMetrics()
@@ -192,9 +192,7 @@ class RecordingSession {
             maxDuration: settings.maxDuration
         )
 
-        Task {
-            try? await captureManager.prepareForCapture(on: screen)
-        }
+        try await captureManager.prepareForCapture(on: screen)
 
         observeDisplayChanges()
 
@@ -345,9 +343,8 @@ class RecordingSession {
         let relativeX = mouseLocation.x - cgRegion.origin.x
         let relativeAppKitY = mouseLocation.y - cgRegion.origin.y
         let relativeY = cgRegion.height - relativeAppKitY
-        let scaleFactor = screen.backingScaleFactor
-        let pixelX = Int(max(0, min(relativeX * scaleFactor, region.width * scaleFactor - 1)))
-        let pixelY = Int(max(0, min(relativeY * scaleFactor, region.height * scaleFactor - 1)))
+        let pixelX = Int(max(0, min(relativeX, region.width - 1)))
+        let pixelY = Int(max(0, min(relativeY, region.height - 1)))
 
         let eventType: InteractionEvent.EventType
         switch nsEvent.type {

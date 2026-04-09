@@ -282,7 +282,9 @@ class RecordingCoordinator {
             if frameIndex >= totalFrames {
                 timer.invalidate()
                 self.cleanupSelectionOverlays()
-                self.startRecording(region: cgRegion, screen: screen)
+                Task { @MainActor in
+                    await self.startRecording(region: cgRegion, screen: screen)
+                }
             }
         }
         RunLoop.main.add(timer, forMode: .common)
@@ -343,7 +345,7 @@ class RecordingCoordinator {
 
     // MARK: - Recording Start
 
-    private func startRecording(region: CGRect, screen: NSScreen) {
+    private func startRecording(region: CGRect, screen: NSScreen) async {
         let session = RecordingSession(
             appState: appState,
             settings: SettingsManager.shared,
@@ -361,7 +363,7 @@ class RecordingCoordinator {
                 self?.onThumbnailUpdated?(image, frameCount)
             }
 
-            try session.start(region: region, screen: screen)
+            try await session.start(region: region, screen: screen)
             recordingSession = session
             appState.status = .recording
             stopReason = nil

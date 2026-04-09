@@ -11,7 +11,6 @@ class ScreenCaptureManager {
     }
 
     private var cachedFilter: SCContentFilter?
-    private var cachedScaleFactor: CGFloat?
 
     func hasPermission() -> Bool {
         CGPreflightScreenCaptureAccess()
@@ -33,23 +32,19 @@ class ScreenCaptureManager {
         let excludedApps = selfApp.map { [$0] } ?? []
 
         cachedFilter = SCContentFilter(display: display, excludingApplications: excludedApps, exceptingWindows: [])
-        cachedScaleFactor = screen.backingScaleFactor
     }
 
     func endCapture() {
         cachedFilter = nil
-        cachedScaleFactor = nil
     }
 
     func captureRegion(_ region: CGRect, on screen: NSScreen, showsCursor: Bool = false) async throws -> CGImage {
         do {
             // 캐시가 없으면 fallback으로 직접 쿼리
             let filter: SCContentFilter
-            let scaleFactor: CGFloat
 
-            if let cached = cachedFilter, let cachedScale = cachedScaleFactor {
+            if let cached = cachedFilter {
                 filter = cached
-                scaleFactor = cachedScale
             } else {
                 let content = try await SCShareableContent.excludingDesktopWindows(false, onScreenWindowsOnly: true)
                 guard let display = content.displays.first(where: { $0.displayID == screen.displayID }) else {
@@ -58,25 +53,24 @@ class ScreenCaptureManager {
                 let selfApp = content.applications.first { $0.bundleIdentifier == Bundle.main.bundleIdentifier }
                 let excludedApps = selfApp.map { [$0] } ?? []
                 filter = SCContentFilter(display: display, excludingApplications: excludedApps, exceptingWindows: [])
-                scaleFactor = screen.backingScaleFactor
             }
 
-            // 서브픽셀 좌표로 캡처 시 보간이 발생하여 흐려짐
-            let pw = max(1, round(region.width * scaleFactor))
-            let ph = max(1, round(region.height * scaleFactor))
+            // 정수 points로 스냅하여 서브픽셀 보간 방지
+            let pw = max(1, round(region.width))
+            let ph = max(1, round(region.height))
             let snappedRect = CGRect(
-                x: round(region.origin.x * scaleFactor) / scaleFactor,
-                y: round(region.origin.y * scaleFactor) / scaleFactor,
-                width: pw / scaleFactor,
-                height: ph / scaleFactor
+                x: round(region.origin.x),
+                y: round(region.origin.y),
+                width: pw,
+                height: ph
             )
 
             let config = SCStreamConfiguration()
             config.sourceRect = snappedRect
             config.width = Int(pw)
             config.height = Int(ph)
-            // .automatic(기본값)은 해상도를 낮출 수 있음
-            config.captureResolution = .best
+            // 디스플레이 scaleFactor와 무관하게 1x로 캡처
+            config.captureResolution = .nominal
             config.showsCursor = showsCursor
             config.pixelFormat = kCVPixelFormatType_32BGRA
 
