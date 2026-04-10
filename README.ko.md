@@ -10,6 +10,7 @@
     <a href="LICENSE"><img alt="MIT License" src="https://img.shields.io/badge/license-MIT-black?style=flat-square"></a>
   </div>
   <p align="center">UI 모션을 말로 설명하는 대신, AI에게 직접 보여주세요.</p>
+  <p align="center"><strong>영역 선택</strong> → <strong>녹화</strong> → <strong>AI에 붙여넣기</strong></p>
 </p>
 
 <p align="center">
@@ -35,17 +36,24 @@
 
 ## 주요 기능
 
-- **영역 선택** — 전체 화면이 아닌 원하는 컴포넌트만 캡처
+**캡처**
+- **영역 캡처** — 전체 화면이 아닌 원하는 컴포넌트만 캡처
+- **다중 모니터** — 연결된 모든 디스플레이에서 영역 선택 및 이동
 - **간격 조절** — 0.1초~10초 단위로 설정 가능
-- **자동 중지** — 프레임 수 또는 시간 제한으로 자동 녹화 중지
 - **변화 감지** — 동일한 프레임 자동 스킵
+- **자동 중지** — 프레임 수 또는 시간 제한으로 자동 녹화 중지
+
+**인터랙션 추적**
 - **인터랙션 캡처** — 마우스 클릭/드래그 순간 자동 프레임 저장 + 이벤트 메타데이터(좌표, 버튼, modifier)를 `session.json`에 기록
 - **커서 표시** — 캡처 프레임에 마우스 커서 포함 옵션
+
+**출력**
 - **AI 프롬프트 생성** — 커스터마이즈 가능한 프롬프트 원클릭 복사 (캡처 메타데이터 포함)
-- **글로벌 단축키** — 어디서든 녹화 시작 또는 컨트롤 패널 표시 (기본: Option+Shift+5, 변경 가능)
-- **다중 모니터** — 연결된 모든 디스플레이에서 영역 선택 및 이동
-- **실시간 프리뷰** — 녹화 중 메뉴바에서 캡처된 프레임 확인
 - **이미지 포맷** — PNG 또는 JPEG (품질 조절 가능)
+
+**워크플로우**
+- **글로벌 단축키** — 어디서든 녹화 시작 또는 컨트롤 패널 표시 (기본: Option+Shift+5, 변경 가능)
+- **실시간 프리뷰** — 녹화 중 메뉴바에서 캡처된 프레임 확인
 - **한국어 / English** — 시스템 언어 감지 포함 완전 다국어 지원
 - **가벼움** — 메뉴바 상주, ffmpeg 등 외부 도구 불필요
 
@@ -85,7 +93,7 @@ xcodebuild -project FrameStrip.xcodeproj -scheme FrameStrip -configuration Relea
 6. **Record** 클릭 (또는 Enter)
 7. 애니메이션이 끝나면 **Stop** 클릭
 8. 완료 패널에서 **프롬프트 복사** 클릭
-9. Claude, GPT 등 AI에 `@프레임-경로`와 함께 붙여넣기
+9. Claude Code, Codex 등 AI에 붙여넣기
 
 ### 예제 프롬프트
 
@@ -127,15 +135,17 @@ xcodebuild -project FrameStrip.xcodeproj -scheme FrameStrip -configuration Relea
   </output-boundaries>
 </ui-motion-reference>
 
-이 페이지 전환을 React에서 Framer Motion으로 구현해줘.
-요소 간 스태거 타이밍에 주의해줘.
+이 애니메이션을 HTML 단일 파일로 구현해줘.
 ```
 
 마지막에 원하는 지시를 추가하세요. 예시:
 
-- `이 UI 애니메이션을 SwiftUI spring 타이밍으로 구현해줘.`
-- `이 버튼 hover 트랜지션을 CSS transitions로 재현해줘.`
+- `이 애니메이션을 HTML 단일 파일로 구현해줘.`
 - `이 페이지 전환을 React에서 Framer Motion으로 구현해줘.`
+- `이 로딩 애니메이션을 SwiftUI spring 타이밍으로 재현해줘.`
+- `이 버튼 hover 트랜지션을 CSS transitions로 구현해줘.`
+- `구현 방법을 제안하기 전에 이 모션을 상세하게 분석해줘.`
+- `이런 애니메이션을 뭐라고 해? 통용되는 이름과 자주 쓰이는 용도를 알려줘.`
 
 ### 설정
 
