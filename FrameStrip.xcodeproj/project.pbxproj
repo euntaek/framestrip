@@ -24,12 +24,12 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		A1000001AAAAAAAA00000001 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
-		A1000002AAAAAAAA00000002 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
-		A1000003AAAAAAAA00000003 /* Signing.local.example.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.local.example.xcconfig; sourceTree = "<group>"; };
 		0651D5BF2F6C327E000973A1 /* FrameStrip Dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "FrameStrip Dev.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0651D5CC2F6C327F000973A1 /* FrameStripTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FrameStripTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		0651D5D62F6C327F000973A1 /* FrameStripUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = FrameStripUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		A1000001AAAAAAAA00000001 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		A1000002AAAAAAAA00000002 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		A1000003AAAAAAAA00000003 /* Signing.local.example.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Signing.local.example.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -86,16 +86,6 @@
 			);
 			sourceTree = "<group>";
 		};
-		A1000004AAAAAAAA00000004 /* Config */ = {
-			isa = PBXGroup;
-			children = (
-				A1000001AAAAAAAA00000001 /* Debug.xcconfig */,
-				A1000002AAAAAAAA00000002 /* Release.xcconfig */,
-				A1000003AAAAAAAA00000003 /* Signing.local.example.xcconfig */,
-			);
-			path = Config;
-			sourceTree = "<group>";
-		};
 		0651D5C02F6C327E000973A1 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -104,6 +94,16 @@
 				0651D5D62F6C327F000973A1 /* FrameStripUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A1000004AAAAAAAA00000004 /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				A1000001AAAAAAAA00000001 /* Debug.xcconfig */,
+				A1000002AAAAAAAA00000002 /* Release.xcconfig */,
+				A1000003AAAAAAAA00000003 /* Signing.local.example.xcconfig */,
+			);
+			path = Config;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -321,6 +321,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = dwarf;
+				DEVELOPMENT_TEAM = WZ49K738JN;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
@@ -387,6 +388,7 @@
 				COPY_PHASE_STRIP = NO;
 				DEAD_CODE_STRIPPING = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				DEVELOPMENT_TEAM = WZ49K738JN;
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_USER_SCRIPT_SANDBOXING = YES;
