@@ -4,6 +4,7 @@ DERIVED_DATA = DerivedData
 APP = $(DERIVED_DATA)/Build/Products/Release/FrameStrip.app
 DMG = FrameStrip.dmg
 KEYCHAIN_PROFILE = FrameStrip
+SIGN_IDENTITY = Developer ID Application
 
 # ── Development ──────────────────────────────────────
 
@@ -24,22 +25,35 @@ clean:
 # Full release flow:
 #   1. make release-build   — clean build with Developer ID signing
 #   2. make verify-version  — check version in built app
-#   3. make dmg             — package .app into .dmg
-#   4. make notarize        — submit .dmg to Apple for notarization
-#   5. make staple          — attach notarization ticket to .dmg
-#   6. make appcast         — generate appcast.xml for Sparkle updates
+#   3. make sign-sparkle    — re-sign Sparkle framework binaries with Developer ID
+#   4. make dmg             — package .app into .dmg
+#   5. make notarize        — submit .dmg to Apple for notarization
+#   6. make staple          — attach notarization ticket to .dmg
+#   7. make appcast         — generate appcast.xml for Sparkle updates
 #
 # Or run all at once:
 #   make release
 #
 
-.PHONY: release-build verify-version dmg notarize staple appcast release
+.PHONY: release-build verify-version sign-sparkle dmg notarize staple appcast release
 
 release-build:
 	xcodebuild -project $(PROJECT) -scheme $(SCHEME) -configuration Release -derivedDataPath $(DERIVED_DATA) clean build
 
 verify-version:
 	@/usr/bin/defaults read "$(CURDIR)/$(APP)/Contents/Info.plist" CFBundleShortVersionString
+
+sign-sparkle:
+	@SPARKLE="$(APP)/Contents/Frameworks/Sparkle.framework/Versions/B"; \
+	if [ ! -d "$$SPARKLE" ]; then echo "Sparkle.framework not found — skipping"; exit 0; fi; \
+	echo "Re-signing Sparkle framework binaries..."; \
+	codesign --force --options runtime --sign "$(SIGN_IDENTITY)" --timestamp "$$SPARKLE/XPCServices/Installer.xpc"; \
+	codesign --force --options runtime --sign "$(SIGN_IDENTITY)" --timestamp "$$SPARKLE/XPCServices/Downloader.xpc"; \
+	codesign --force --options runtime --sign "$(SIGN_IDENTITY)" --timestamp "$$SPARKLE/Autoupdate"; \
+	codesign --force --options runtime --sign "$(SIGN_IDENTITY)" --timestamp "$$SPARKLE/Updater.app"; \
+	codesign --force --options runtime --sign "$(SIGN_IDENTITY)" --timestamp "$(APP)/Contents/Frameworks/Sparkle.framework"; \
+	codesign --force --options runtime --sign "$(SIGN_IDENTITY)" --timestamp "$(APP)"; \
+	echo "Sparkle re-signing complete"
 
 dmg:
 	$(eval DMG_STAGING := $(shell mktemp -d))
@@ -66,5 +80,5 @@ appcast:
 	@cp .appcast-staging/appcast.xml appcast.xml
 	@echo "Generated appcast.xml"
 
-release: release-build dmg notarize staple appcast
+release: release-build sign-sparkle dmg notarize staple appcast
 	@echo "Release complete. Distribute $(DMG)"
