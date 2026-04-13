@@ -96,6 +96,7 @@ FrameStrip/
   - Debug: `FrameStrip Dev` / `com.ttings.FrameStrip.dev`
   - Release: `FrameStrip` / `com.ttings.FrameStrip`
 - If screen recording permission or relaunch behavior looks broken, check app identity first.
+- Sparkle.framework contains helper binaries (Updater.app, Autoupdate, XPC services) that must be re-signed with Developer ID for notarization. `make sign-sparkle` handles this. Runs automatically as part of `make release`.
 
 ## Release
 
