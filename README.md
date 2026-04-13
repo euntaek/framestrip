@@ -55,6 +55,7 @@ Instead of trying to describe it, just show it. FrameStrip captures the animatio
 - **Global hotkey** — start recording or show the control panel from anywhere (default: Option+Shift+5, customizable)
 - **Live preview** — see captured frames in the menu bar during recording
 - **Korean / English** — full localization with system language detection
+- **Auto-update** — built-in update checking via Sparkle, configurable in Settings
 - **Lightweight** — lives in the menu bar, no ffmpeg or external tools needed
 
 ## Installation

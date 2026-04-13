@@ -9,6 +9,9 @@ class MenuManager: NSObject {
     private var openFolderItem: NSMenuItem!
     private var settingsItem: NSMenuItem!
     private var copyPromptItem: NSMenuItem!
+    private var checkForUpdatesItem: NSMenuItem?
+    private var canCheckForUpdatesObservation: Any?
+    private var canCheckForUpdatesGetter: (() -> Bool)?
 
     private var iconPulseTimer: Timer?
     private var permissionDeniedItem: NSMenuItem?
@@ -20,6 +23,7 @@ class MenuManager: NSObject {
     var onStartStopClicked: (() -> Void)?
     var onOpenSettings: (() -> Void)?
     var onCopyPrompt: (() -> Void)?
+    var onCheckForUpdates: (() -> Void)?
     var lastSaveFolder: URL?
 
     override init() {
@@ -82,6 +86,18 @@ class MenuManager: NSObject {
         menu.addItem(quitItem)
     }
 
+    func addCheckForUpdatesItem() {
+        let updateItem = NSMenuItem(title: String(localized: "Check for Updates..."), action: #selector(handleCheckForUpdates), keyEquivalent: "")
+        updateItem.target = self
+        updateItem.image = NSImage(systemSymbolName: "arrow.triangle.2.circlepath", accessibilityDescription: String(localized: "Check for Updates"))
+        checkForUpdatesItem = updateItem
+
+        let index = menu.index(of: settingsItem)
+        if index != -1 {
+            menu.insertItem(updateItem, at: index + 1)
+        }
+    }
+
     // MARK: - Menu State Transitions
 
     func updateForRecording() {
@@ -99,6 +115,7 @@ class MenuManager: NSObject {
         ensureStatusTextItem()
 
         settingsItem.isEnabled = false
+        checkForUpdatesItem?.isEnabled = false
         if lastSaveFolder != nil {
             openFolderItem.isEnabled = true
         }
@@ -114,6 +131,7 @@ class MenuManager: NSObject {
         updateFinalizingStatus(frameCount: frameCount)
 
         settingsItem.isEnabled = false
+        checkForUpdatesItem?.isEnabled = false
         openFolderItem.isEnabled = lastSaveFolder != nil
     }
 
@@ -128,6 +146,7 @@ class MenuManager: NSObject {
         removeThumbnail()
 
         settingsItem.isEnabled = true
+        syncCheckForUpdatesState()
         openFolderItem.isEnabled = lastSaveFolder != nil
     }
 
@@ -293,6 +312,20 @@ class MenuManager: NSObject {
         }
     }
 
+    // MARK: - Sparkle Integration
+
+    func bindUpdaterState(canCheckForUpdates: @escaping () -> Bool, observe: @escaping (@escaping (Bool) -> Void) -> Any) {
+        canCheckForUpdatesGetter = canCheckForUpdates
+        checkForUpdatesItem?.isEnabled = canCheckForUpdates()
+        canCheckForUpdatesObservation = observe { [weak self] canCheck in
+            self?.checkForUpdatesItem?.isEnabled = canCheck
+        }
+    }
+
+    private func syncCheckForUpdatesState() {
+        checkForUpdatesItem?.isEnabled = canCheckForUpdatesGetter?() ?? true
+    }
+
     // MARK: - Actions
 
     @objc private func handleStartStop() {
@@ -322,6 +355,10 @@ class MenuManager: NSObject {
         if let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_ScreenCapture") {
             NSWorkspace.shared.open(url)
         }
+    }
+
+    @objc private func handleCheckForUpdates() {
+        onCheckForUpdates?()
     }
 }
 

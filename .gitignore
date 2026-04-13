@@ -30,3 +30,7 @@ Config/Signing.local.xcconfig
 
 # Dev docs (specs, plans)
 .docs/
+
+# Sparkle appcast
+.appcast-staging/
+appcast.xml

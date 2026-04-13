@@ -65,6 +65,16 @@
         }
       }
     },
+    "Automatically check for updates" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "자동으로 업데이트 확인"
+          }
+        }
+      }
+    },
     "Automatically captures frames on click and drag, and records event metadata" : {
       "localizations" : {
         "ko" : {
@@ -144,6 +154,26 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "변경..."
+          }
+        }
+      }
+    },
+    "Check for Updates" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트 확인"
+          }
+        }
+      }
+    },
+    "Check for Updates..." : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트 확인..."
           }
         }
       }
@@ -911,6 +941,16 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "저장"
+          }
+        }
+      }
+    },
+    "Updates" : {
+      "localizations" : {
+        "ko" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "업데이트"
           }
         }
       }
