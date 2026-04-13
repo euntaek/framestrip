@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.1.0] — 2026-04-13
+
+### Added
+- Built-in auto-update via Sparkle — check for updates from the menu bar or General settings
+- "Automatically check for updates" toggle in Settings > General
+- "Check for Updates..." menu item below Settings
+- `make appcast` command to generate Sparkle update feed (appcast.xml)
+
+### Changed
+- Activation policy (Dock visibility) now managed centrally — settings window and update dialogs share policy without conflicts
+- Update relaunch is postponed if a recording is in progress
+
 ## [1.0.1] — 2026-04-09
 
 ### Fixed
