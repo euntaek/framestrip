@@ -34,6 +34,7 @@ enum SettingsCategory: String, CaseIterable, Identifiable {
 
 struct SettingsView: View {
     let appState: AppState
+    var onCheckForUpdates: (() -> Void)?
     @State private var selectedCategory: SettingsCategory = .capture
 
     var body: some View {
@@ -64,7 +65,7 @@ struct SettingsView: View {
             case .capture:
                 CaptureSettingsView()
             case .general:
-                GeneralSettingsView(appState: appState)
+                GeneralSettingsView(appState: appState, onCheckForUpdates: onCheckForUpdates)
             case .prompt:
                 PromptSettingsView()
             case .about:

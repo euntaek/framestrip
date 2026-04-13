@@ -4,6 +4,7 @@ import SwiftUI
 class SettingsWindowController: NSObject, NSWindowDelegate {
     private var window: NSWindow?
     private let appState: AppState
+    var onCheckForUpdates: (() -> Void)?
 
     init(appState: AppState) {
         self.appState = appState
@@ -16,9 +17,9 @@ class SettingsWindowController: NSObject, NSWindowDelegate {
             return
         }
 
-        NSApp.setActivationPolicy(.regular)
+        ActivationPolicyManager.addReason(.settings)
 
-        let settingsView = SettingsView(appState: appState)
+        let settingsView = SettingsView(appState: appState, onCheckForUpdates: onCheckForUpdates)
         let hostingController = NSHostingController(rootView: settingsView)
 
         let window = NSWindow(contentViewController: hostingController)
@@ -38,6 +39,6 @@ class SettingsWindowController: NSObject, NSWindowDelegate {
 
     func windowWillClose(_ notification: Notification) {
         window = nil
-        NSApp.setActivationPolicy(.accessory)
+        ActivationPolicyManager.removeReason(.settings)
     }
 }

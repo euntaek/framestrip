@@ -1,4 +1,8 @@
 import AppKit
+import os
+#if !DEBUG
+import Sparkle
+#endif
 
 class AppDelegate: NSObject, NSApplicationDelegate {
     private let appState = AppState()
@@ -7,6 +11,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     private lazy var coordinator = RecordingCoordinator(appState: appState)
     private var completionPanel: CompletionPanelWindow?
     private var lastCompletionInfo: CompletionInfo?
+    #if !DEBUG
+    private var pendingUpdateObserver: Any?
+    #endif
+
+    #if !DEBUG
+    lazy var updaterController = SPUStandardUpdaterController(
+        startingUpdater: true,
+        updaterDelegate: self,
+        userDriverDelegate: self
+    )
+    #endif
 
     func applicationShouldTerminate(_ sender: NSApplication) -> NSApplication.TerminateReply {
         if appState.status == .selecting || appState.status == .adjusting {
@@ -33,6 +48,10 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NotificationCenter.default.addObserver(forName: .hotkeyDidChange, object: nil, queue: .main) { [weak self] _ in
             self?.coordinator.registerHotkey()
         }
+
+        #if !DEBUG
+        _ = updaterController
+        #endif
 
         let captureManager = ScreenCaptureManager()
         if !captureManager.hasPermission() {
@@ -63,6 +82,34 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             NSPasteboard.general.clearContents()
             NSPasteboard.general.setString(prompt, forType: .string)
         }
+
+        #if !DEBUG
+        menuManager.addCheckForUpdatesItem()
+
+        menuManager.onCheckForUpdates = { [weak self] in
+            self?.updaterController.checkForUpdates(nil)
+        }
+
+        settingsWindowController.onCheckForUpdates = { [weak self] in
+            self?.updaterController.checkForUpdates(nil)
+        }
+
+        SettingsManager.shared.automaticallyChecksForUpdates = updaterController.updater.automaticallyChecksForUpdates
+        observeAutoCheckSetting()
+
+        menuManager.bindUpdaterState(
+            canCheckForUpdates: { [weak self] in
+                self?.updaterController.updater.canCheckForUpdates ?? false
+            },
+            observe: { [weak self] callback in
+                self?.updaterController.updater.observe(\.canCheckForUpdates, options: [.new]) { _, change in
+                    DispatchQueue.main.async {
+                        callback(change.newValue ?? false)
+                    }
+                } as Any
+            }
+        )
+        #endif
 
         // 코디네이터 → 메뉴
         coordinator.onRecordingStarted = { [weak self] in
@@ -134,6 +181,20 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    #if !DEBUG
+    private func observeAutoCheckSetting() {
+        withObservationTracking {
+            _ = SettingsManager.shared.automaticallyChecksForUpdates
+        } onChange: { [weak self] in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.updaterController.updater.automaticallyChecksForUpdates = SettingsManager.shared.automaticallyChecksForUpdates
+                self.observeAutoCheckSetting()
+            }
+        }
+    }
+    #endif
+
     private func showCompletionPanel(_ info: CompletionInfo) {
         completionPanel?.dismiss()
         let panel = CompletionPanelWindow(info: info)
@@ -144,3 +205,59 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         panel.show()
     }
 }
+
+#if !DEBUG
+// MARK: - SPUUpdaterDelegate
+
+extension AppDelegate: SPUUpdaterDelegate {
+    func updater(_ updater: SPUUpdater, shouldPostponeRelaunchForUpdate item: SUAppcastItem, untilInvokingBlock installHandler: @escaping () -> Void) -> Bool {
+        guard appState.status != .idle else { return false }
+
+        AppLogger.general.info("Postponing update relaunch — app is busy (status: \(String(describing: self.appState.status)))")
+
+        if let existing = pendingUpdateObserver {
+            NotificationCenter.default.removeObserver(existing)
+            pendingUpdateObserver = nil
+        }
+
+        pendingUpdateObserver = NotificationCenter.default.addObserver(forName: .appStateDidBecomeIdle, object: nil, queue: .main) { [weak self] _ in
+            if let observer = self?.pendingUpdateObserver {
+                NotificationCenter.default.removeObserver(observer)
+                self?.pendingUpdateObserver = nil
+            }
+            installHandler()
+        }
+
+        let originalOnRecordingStopped = coordinator.onRecordingStopped
+        coordinator.onRecordingStopped = { [weak self] in
+            self?.coordinator.onRecordingStopped = originalOnRecordingStopped
+            originalOnRecordingStopped?()
+            NotificationCenter.default.post(name: .appStateDidBecomeIdle, object: nil)
+        }
+
+        return true
+    }
+}
+
+// MARK: - SPUStandardUserDriverDelegate
+
+extension AppDelegate: SPUStandardUserDriverDelegate {
+    func standardUserDriverWillHandleShowingUpdate(_ handleShowingUpdate: Bool, forUpdate update: SUAppcastItem, state: SPUUserUpdateState) {
+        ActivationPolicyManager.addReason(.updateSession)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    func standardUserDriverWillFinishUpdateSession() {
+        ActivationPolicyManager.removeReason(.updateSession)
+    }
+
+    func standardUserDriverWillShowModalAlert() {
+        ActivationPolicyManager.addReason(.sparkleModalAlert)
+        NSApp.activate(ignoringOtherApps: true)
+    }
+
+    func standardUserDriverDidShowModalAlert() {
+        ActivationPolicyManager.removeReason(.sparkleModalAlert)
+    }
+}
+#endif

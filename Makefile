@@ -27,12 +27,13 @@ clean:
 #   3. make dmg             — package .app into .dmg
 #   4. make notarize        — submit .dmg to Apple for notarization
 #   5. make staple          — attach notarization ticket to .dmg
+#   6. make appcast         — generate appcast.xml for Sparkle updates
 #
 # Or run all at once:
 #   make release
 #
 
-.PHONY: release-build verify-version dmg notarize staple release
+.PHONY: release-build verify-version dmg notarize staple appcast release
 
 release-build:
 	xcodebuild -project $(PROJECT) -scheme $(SCHEME) -configuration Release -derivedDataPath $(DERIVED_DATA) clean build
@@ -53,5 +54,17 @@ notarize:
 staple:
 	xcrun stapler staple $(DMG)
 
-release: release-build dmg notarize staple
+appcast:
+	$(eval SPARKLE_BIN := $(shell find ~/Library/Developer/Xcode/DerivedData -name "generate_appcast" -path "*/Sparkle/*" 2>/dev/null | head -1))
+	@if [ -z "$(SPARKLE_BIN)" ]; then \
+		echo "Error: generate_appcast not found. Build the project first to download Sparkle."; \
+		exit 1; \
+	fi
+	@mkdir -p .appcast-staging
+	@cp $(DMG) .appcast-staging/
+	$(SPARKLE_BIN) .appcast-staging
+	@cp .appcast-staging/appcast.xml appcast.xml
+	@echo "Generated appcast.xml"
+
+release: release-build dmg notarize staple appcast
 	@echo "Release complete. Distribute $(DMG)"

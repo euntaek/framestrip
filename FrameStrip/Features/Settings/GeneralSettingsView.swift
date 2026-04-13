@@ -3,10 +3,21 @@ import SwiftUI
 struct GeneralSettingsView: View {
     @Bindable private var settings = SettingsManager.shared
     let appState: AppState
+    var onCheckForUpdates: (() -> Void)?
     @State private var showRestartAlert = false
 
     var body: some View {
         Form {
+            if let onCheckForUpdates {
+                Section("Updates") {
+                    Toggle(String(localized: "Automatically check for updates"), isOn: $settings.automaticallyChecksForUpdates)
+
+                    Button(String(localized: "Check for Updates...")) {
+                        onCheckForUpdates()
+                    }
+                }
+            }
+
             Section("Language") {
                 Picker(String(localized: "Language"), selection: $settings.language) {
                     Text(String(localized: "System")).tag(SettingsManager.Language.system)

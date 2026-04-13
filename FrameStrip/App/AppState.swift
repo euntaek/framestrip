@@ -1,6 +1,10 @@
 import Foundation
 import AppKit
 
+extension Notification.Name {
+    static let appStateDidBecomeIdle = Notification.Name("appStateDidBecomeIdle")
+}
+
 @Observable
 class AppState {
     enum Status: Equatable {

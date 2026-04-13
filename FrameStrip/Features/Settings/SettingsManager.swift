@@ -101,6 +101,8 @@ class SettingsManager {
         didSet { defaults.set(promptTemplate, forKey: Keys.promptTemplate) }
     }
 
+    var automaticallyChecksForUpdates: Bool = false
+
     var saveFolderURL: URL {
         URL(fileURLWithPath: NSString(string: saveFolderPath).expandingTildeInPath)
     }
