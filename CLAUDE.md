@@ -6,8 +6,15 @@ macOS menubar app for capturing UI motion/animation as frame sequences for AI co
 
 | Command | Description |
 |---------|-------------|
-| `xcodebuild -project FrameStrip.xcodeproj -scheme FrameStrip -configuration Debug build` | Debug build |
-| `xcodebuild -project FrameStrip.xcodeproj -scheme FrameStrip -destination 'platform=macOS' -only-testing:FrameStripTests test` | Unit tests |
+| `make build` | Debug build |
+| `make test` | Unit tests |
+| `make clean` | Release build artifacts + dmg 제거 |
+| `make release` | Full release (build → dmg → notarize → staple) |
+| `make release-build` | Release build only (Developer ID signing) |
+| `make verify-version` | Built app version 확인 |
+| `make dmg` | .dmg 패키징 |
+| `make notarize` | Apple 공증 제출 |
+| `make staple` | 공증 티켓 스테이플 |
 
 - Testing framework: Swift Testing (`@Suite`, `@Test`, `#expect`). Not XCTest.
 - Tests can also run from Xcode GUI (⌘U).
@@ -74,6 +81,13 @@ FrameStrip/
 
 ## Development Notes
 
+- Code signing uses xcconfig-based separation:
+  - `Config/Release.xcconfig` — signing style, hardened runtime, timestamp (git tracked)
+  - `Config/Debug.xcconfig` — automatic signing (git tracked)
+  - `Config/Signing.local.xcconfig` — Developer Team ID (gitignored)
+  - Contributors: copy `Config/Signing.local.example.xcconfig` → `Config/Signing.local.xcconfig` and set Team ID
+- Notarization credentials stored in Keychain (profile name: `FrameStrip`). Set up via:
+  `xcrun notarytool store-credentials "FrameStrip" --apple-id "EMAIL" --team-id "TEAM_ID" --password "APP_SPECIFIC_PASSWORD"`
 - Debug and Release app identities are separate:
   - Debug: `FrameStrip Dev` / `com.ttings.FrameStrip.dev`
   - Release: `FrameStrip` / `com.ttings.FrameStrip`
@@ -94,26 +108,16 @@ Xcode project has `MARKETING_VERSION` (user-facing, e.g. `1.1.0`) and `CURRENT_P
 
 1. Update `MARKETING_VERSION` and `CURRENT_PROJECT_VERSION` in Xcode project
 2. Update `CHANGELOG.md` with new version entry
-3. Build Release (clean build with local DerivedData to avoid stale cache):
+3. Build, sign, notarize, and package:
    ```bash
-   xcodebuild -project FrameStrip.xcodeproj -scheme FrameStrip -configuration Release -derivedDataPath DerivedData clean build
+   make release   # release-build → dmg → notarize → staple
+   make verify-version
    ```
-4. Verify version in built app:
-   ```bash
-   defaults read DerivedData/Build/Products/Release/FrameStrip.app/Contents/Info.plist CFBundleShortVersionString
-   ```
-5. Create `.dmg`: stage app + Applications symlink, then `hdiutil create`
-   ```bash
-   DMG_STAGING=$(mktemp -d)
-   cp -R "DerivedData/Build/Products/Release/FrameStrip.app" "$DMG_STAGING/"
-   ln -s /Applications "$DMG_STAGING/Applications"
-   hdiutil create -volname "FrameStrip" -srcfolder "$DMG_STAGING" -ov -format UDZO FrameStrip.dmg
-   rm -rf "$DMG_STAGING"
-   ```
+   Or step by step: `make release-build` → `make dmg` → `make notarize` → `make staple`
+4. Commit version bump + changelog
+5. Tag and push: `git tag v1.1.0 && git push origin v1.1.0`
+6. Create GitHub Release: `gh release create v1.1.0 --title "v1.1.0" --notes-file <(sed -n '/## \[1.1.0\]/,/## \[/p' CHANGELOG.md | sed '$d') FrameStrip.dmg`
    Asset name is always `FrameStrip.dmg` (no version suffix). Landing page download URL depends on this.
-6. Commit version bump + changelog
-7. Tag and push: `git tag v1.1.0 && git push origin v1.1.0`
-8. Create GitHub Release: `gh release create v1.1.0 --title "v1.1.0" --notes-file <(sed -n '/## \[1.1.0\]/,/## \[/p' CHANGELOG.md | sed '$d') FrameStrip.dmg`
 
 ### Changelog Format
 
