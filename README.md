@@ -150,8 +150,8 @@ Add your own instruction at the end to tell AI what to do — for example:
 
 Settings are organized in a sidebar layout (Capture / General / Prompt / About):
 
-- **Capture** — interval, image format, change detection, auto-stop limits
-- **General** — language (Korean/English), save folder, keyboard shortcut
+- **Capture** — interval, image format, change detection, auto-stop limits, cursor/interaction capture
+- **General** — auto-update checking, language (Korean/English), save folder, keyboard shortcut
 - **Prompt** — customize the AI prompt template with variable chips
 - **About** — version, license, links
 
